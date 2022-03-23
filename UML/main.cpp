@@ -1,6 +1,8 @@
 ﻿#include <iostream>
 #include<conio.h>
+#include<thread>
 using namespace std;
+using namespace std::chrono_literals;
 #define MIN_TANK_VAUME 20
 #define MAX_TANK_VALUME 80
 #define MIN_ENGINE_CONSUMPTION 3
@@ -25,6 +27,15 @@ public:
 		if (fuel_level <= 0)return;
 		if (this->fuel_level + fuel_level <= volume)this->fuel_level += fuel_level;
 		else this->fuel_level = volume;
+	}
+	double give_fuel(double amount)
+	{
+		if (fuel_level - amount > 0)fuel_level -= amount;
+		else
+		{
+			fuel_level = 0;
+		}
+		return fuel_level;
 	}
 	Tank(unsigned int volume) :volume(volume >= MIN_TANK_VAUME && volume <= MAX_TANK_VALUME ? volume : 60)
 	{//константный член класса можно проинициализироыать только в списке реализации конструктора(только в заголовке
@@ -99,11 +110,18 @@ class Car
 	Engine engine;
 	Tank tank;
 	bool driver_inside;
+	struct Control
+	{
+		std::thread panel_thread;//отображ панели
+		std::thread engine_idle_thread;//холостой ход
+		std::thread free_wheeling_thread;
+	}control;
 
 public:
 	Car(double engine_consumption, unsigned int tank_volume) :engine(engine_consumption), tank(tank_volume)
 	{
 		driver_inside = false;
+		
 		cout << "Your car is ready" << endl;
 	}
 	~Car()
@@ -114,13 +132,28 @@ public:
 	{
 		
 		driver_inside = true;
-		panel();
+		//panel();
+		control.panel_thread = std::thread(&Car::panel, this);
 	}
 	void get_out()
 	{
 		driver_inside = false;
+		if(control.panel_thread.joinable())control.panel_thread.join();
 		system("CLS");
 		cout << "You are out of your car" << endl;
+	}
+	void start_engine()
+	{
+		if (driver_inside && tank.get_fuel_level())
+		{
+			engine.start();
+			control.engine_idle_thread = std::thread(&Car::engine_idle, this);
+		}
+	}
+	void stop_engine()
+	{
+		engine.stop();
+		if (control.engine_idle_thread.joinable())control.engine_idle_thread.join();
 	}
 	void control_car()
 	{
@@ -135,15 +168,53 @@ public:
 			  if (driver_inside)get_out();
 			  else get_in() ;//вход.выход из машины
 			  break;
+		  case 'I':
+		  case'i':
+			  if (engine.started())stop_engine();
+			  else
+			  {
+				  start_engine();
+			  }
+			  break;
+		  case 'f':
+		  case'F':
+			  if (driver_inside)
+			  {
+				  cout << "Для того, чтобы заправиться, нужно выйти из машины" << endl;
+				  
+			  }
+			  else
+			  {
+				  int amount;
+				  cout << "Введите литраж: "; cin >> amount;
+				  tank.fill(amount);
+				  cout << "Заправка успешно завершена! " << endl;
+			  }
+			  break;
+		  case Escape:
+			  stop_engine();
+			  get_out();
+			  break;
 		  }
 		} while (key != Escape);
 
 	}
 	void panel()const
 	{
-		system("CLS");
-		cout << "Fuel level: " << tank.get_fuel_level() << " liters\n";
-		cout << "Engine is " << (engine.started() ? "started" : "stopped") << endl;
+		while (driver_inside)
+		{
+			system("CLS");
+			cout << "Fuel level: " << tank.get_fuel_level() << " liters\n";
+			cout << "Engine is " << (engine.started() ? "started" : "stopped") << endl;
+			std::this_thread::sleep_for(1s);
+		}
+	}
+	void engine_idle()
+	{
+		while (engine.started()&&tank.give_fuel(engine.get_consumtion_per_second()))
+		{
+			std::this_thread::sleep_for(1s);
+		}
 	}
 	void info()const
 	{
