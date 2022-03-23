@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include<conio.h>
 using namespace std;
 #define MIN_TANK_VAUME 20
@@ -9,7 +9,7 @@ using namespace std;
 #define Enter 13
 class Tank
 {
-	const unsigned int volume;//õàðàêòåðèñòèêà áàêà
+	const unsigned int volume;//Ñ…Ð°Ñ€Ð°ÐºÑ‚ÐµÑ€Ð¸ÑÑ‚Ð¸ÐºÐ° Ð±Ð°ÐºÐ°
 	double fuel_level;
 public:
 	unsigned int get_volume()const
@@ -27,7 +27,7 @@ public:
 		else this->fuel_level = volume;
 	}
 	Tank(unsigned int volume) :volume(volume >= MIN_TANK_VAUME && volume <= MAX_TANK_VALUME ? volume : 60)
-	{//êîíñòàíòíûé ÷ëåí êëàññà ìîæíî ïðîèíèöèàëèçèðîûàòü òîëüêî â ñïèñêå ðåàëèçàöèè êîíñòðóêòîðà(òîëüêî â çàãîëîâêå
+	{//ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ð½Ñ‹Ð¹ Ñ‡Ð»ÐµÐ½ ÐºÐ»Ð°ÑÑÐ° Ð¼Ð¾Ð¶Ð½Ð¾ Ð¿Ñ€Ð¾Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ñ‹Ð°Ñ‚ÑŒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð² ÑÐ¿Ð¸ÑÐºÐµ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ ÐºÐ¾Ð½ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€Ð°(Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð² Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐµ
 		this->fuel_level = 0;
 		cout << "Tank is resdy" << endl;
 
@@ -45,9 +45,9 @@ public:
 };
 class Engine
 {
-	double consumption;//ðàñõîä íà 100êì
-	double consumtion_per_second;//ðàñõîä çà ñåêóíäó
-	bool is_started;//çàâåäåí/çàãëóøåí
+	double consumption;//Ñ€Ð°ÑÑ…Ð¾Ð´ Ð½Ð° 100ÐºÐ¼
+	double consumtion_per_second;//Ñ€Ð°ÑÑ…Ð¾Ð´ Ð·Ð° ÑÐµÐºÑƒÐ½Ð´Ñƒ
+	bool is_started;//Ð·Ð°Ð²ÐµÐ´ÐµÐ½/Ð·Ð°Ð³Ð»ÑƒÑˆÐµÐ½
 public:
 	double get_consumption()const
 	{
@@ -133,7 +133,7 @@ public:
 		  {
 		  case Enter:
 			  if (driver_inside)get_out();
-			  else get_in() ;//âõîä.âûõîä èç ìàøèíû
+			  else get_in() ;//Ð²Ñ…Ð¾Ð´.Ð²Ñ‹Ñ…Ð¾Ð´ Ð¸Ð· Ð¼Ð°ÑˆÐ¸Ð½Ñ‹
 			  break;
 		  }
 		} while (key != Escape);
@@ -162,7 +162,7 @@ void main()
 	int fuel;
 	while (true)
 	{
-		cout << "Ââåäèòå îáúåì òîïëèâà:"; cin >> fuel;
+		cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¾Ð±ÑŠÐµÐ¼ Ñ‚Ð¾Ð¿Ð»Ð¸Ð²Ð°:"; cin >> fuel;
 		tank.fill(fuel);
 		tank.info();
 	}
