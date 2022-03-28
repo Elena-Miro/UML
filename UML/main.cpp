@@ -84,7 +84,9 @@ public:
 			this->consumption = consumption;
 		else
 			this->consumption = DEFOLT_ENGINE_CONSUMPTION;
+
 		this->consumtion_per_second = this->consumption*3e-5;
+		
 	}
 	void start()//запуск
 	{
@@ -97,6 +99,15 @@ public:
 	bool started()const//проверяет состояние двигателя
 	{
 		return is_started;
+	}
+	void correct_consumtion(int speed)
+	{
+		if (speed > 0 && speed <= 60 || speed >= 101 && speed <= 140)
+			consumtion_per_second = 0.002;
+		if(speed>=61 && speed<=100)consumtion_per_second = 0.0014;
+		if (speed >= 141 && speed <= 200)consumtion_per_second = 0.0025;
+		if (speed >= 201 && speed <= 250)consumtion_per_second = 0.003;
+		if (speed == 0)consumtion_per_second = 0.003;
 	}
 	void info()const
 	{
@@ -155,6 +166,11 @@ public:
 	}
 	void get_out()//вылазит из машины
 	{
+		if (speed > 0)
+		{
+			cout << "Сейчас нельзя выйти из машины" << endl;
+			return;
+		}
 		driver_inside = false;
 		if(control.panel_thread.joinable())control.panel_thread.join();
 		system("CLS");//очищает экран
@@ -200,6 +216,7 @@ public:
 			  break;
 		  case 'f'://заправка
 		  case'F':
+			  
 			  if (driver_inside)
 			  {
 				  cout << "Для того, чтобы заправиться, нужно выйти из машины" << endl;
@@ -234,6 +251,7 @@ public:
 			  }
 			  break;
 		  case Escape://выход
+			  speed = 0;
 			  stop_engine();
 			  get_out();
 			  break;
@@ -248,6 +266,8 @@ public:
 		while (driver_inside)
 		{
 			system("CLS");
+			for (int i = 0; i < speed/3; i++)cout << "|";
+			cout << endl;
 			cout << "Speed:\t" << speed << " km/h\n";
 			cout << "Fuel level: " << tank.get_fuel_level() << " liters\t";
 			if (tank.get_fuel_level() < 5)
@@ -259,6 +279,7 @@ public:
 			}
 			cout << endl;
 			cout << "Engine is " << (engine.started() ? "started" : "stopped") << endl;
+			if(engine.started())cout << "Consumption per second: " << engine.get_consumtion_per_second() << endl;
 			std::this_thread::sleep_for(1s);
 		}
 	}
@@ -276,9 +297,11 @@ public:
 			speed--;
 			if (speed < 0)speed = 0;
 			std::this_thread::sleep_for(1s);
+			engine.correct_consumtion(speed);
 
 		}
 	}
+	
 	void info()const//информация бак и движок
 	{
 		engine.info();
